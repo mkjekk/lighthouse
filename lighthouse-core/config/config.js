@@ -710,7 +710,7 @@ class Config {
    */
   static requireAudits(audits, configPath) {
     const status = {msg: 'Requiring audits', id: 'lh:config:requireAudits'};
-    log.time(status);
+    log.time(status, 'verbose');
     const expandedAudits = Config.expandAuditShorthand(audits);
     if (!expandedAudits) {
       return null;
@@ -785,7 +785,7 @@ class Config {
       return null;
     }
     const status = {msg: 'Requiring gatherers', id: 'lh:config:requireGatherers'};
-    log.time(status);
+    log.time(status, 'verbose');
 
     const coreList = Runner.getGathererList();
     const fullPasses = passes.map(pass => {

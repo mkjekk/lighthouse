@@ -18,7 +18,7 @@ function checkEventOverlap(entry, prevEntries) {
     const thisEnd = entry.startTime + entry.duration;
     const isOverlap = prevEnd > entry.startTime && prevEnd < thisEnd;
     if (isOverlap) {
-      throw new Error(`Two measures overlap! ${prevEntry.name} & ${entry.name}`);
+      console.error(`Two measures overlap! ${prevEntry.name} & ${entry.name}`);
     }
   }
 }
