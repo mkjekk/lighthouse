@@ -124,6 +124,13 @@ class Runner {
 
       log.timeEnd(resultsStatus);
 
+      // Summarize all the timings and drop onto the LHR
+      try {
+        log.timeEnd(runnerStatus);
+      } catch (e) {}
+      artifacts.Timing.push(...log.takeTimeEntries());
+      const runnerEntry = artifacts.Timing.find(e => e.name === 'lh:runner:run')
+
       /** @type {LH.Result} */
       const lhr = {
         userAgent: artifacts.HostUserAgent,
@@ -141,16 +148,8 @@ class Runner {
         configSettings: settings,
         categories,
         categoryGroups: runOpts.config.groups || undefined,
-        timing: {entries: artifacts.Timing || [], total: 0},
+        timing: {entries: artifacts.Timing, total: runnerEntry && runnerEntry.duration || 0},
       };
-
-      // Summarize all the timings and drop onto the LHR
-      log.timeEnd(runnerStatus);
-      lhr.timing.entries.push(...log.takeTimeEntries());
-      const runnerEntry = lhr.timing.entries.find(e => e.name === 'lh:runner:run');
-      if (runnerEntry) {
-        lhr.timing.total = runnerEntry.duration;
-      }
 
       lhr.i18n = {
         rendererFormattedStrings: i18n.getRendererFormattedStrings(settings.locale),
