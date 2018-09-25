@@ -64,10 +64,10 @@ async function loadArtifacts(basePath) {
   });
 
   if (Array.isArray(artifacts.Timing)) {
-    // Tag existing entries, so they can be rendered in parallel
+    // Any Timing entries in saved artifacts will have a different timeOrigin than the auditing phase
+    // The `gather` prop is read later in generate-timing-trace and they're added to a separate track of trace events
     artifacts.Timing.forEach(entry => (entry.gather = true));
   }
-
   return artifacts;
 }
 

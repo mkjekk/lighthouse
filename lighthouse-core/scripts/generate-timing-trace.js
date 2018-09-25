@@ -10,7 +10,7 @@ const path = require('path');
 const {createTraceString} = require('../lib/timing-trace-saver');
 
 /**
- * @param {!string} msg
+ * @param {string} msg
  */
 function printErrorAndQuit(msg) {
   // eslint-disable-next-line no-console

@@ -9,7 +9,8 @@
  * Technically, it's fine for usertiming measures to overlap, however non-async events make
  * for a much clearer UI in traceviewer. We do this check to make sure we aren't passing off
  * async-like measures as non-async.
- * @param {!LH.Artifacts.MeasureEntry} entry user timing entry
+ * prevEntries are expected to be sorted by startTime
+ * @param {LH.Artifacts.MeasureEntry} entry user timing entry
  * @param {LH.Artifacts.MeasureEntry[]} prevEntries user timing entries
  */
 function checkEventOverlap(entry, prevEntries) {
@@ -32,7 +33,8 @@ function checkEventOverlap(entry, prevEntries) {
 function generateTraceEvents(entries, trackName = 'measures') {
   if (!Array.isArray(entries)) return [];
 
-  const currentTrace = /** @type {!LH.TraceEvent[]} */ ([]);
+  /** @type {!LH.TraceEvent[]} */
+  const currentTrace = [];
   let id = 0;
 
   entries.sort((a, b) => a.startTime - b.startTime);

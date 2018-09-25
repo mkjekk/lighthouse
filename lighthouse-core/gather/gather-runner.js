@@ -133,8 +133,7 @@ class GatherRunner {
       if (!(/close\/.*status: 500$/.test(err.message))) {
         log.error('GatherRunner disconnect', err.message);
       }
-      log.timeEnd(status);
-    });
+    }).then(_ => log.timeEnd(status))
   }
 
   /**
