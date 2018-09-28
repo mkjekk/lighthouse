@@ -464,6 +464,10 @@ class Config {
     // Locale is special and comes only from flags/settings/lookupLocale.
     settingsWithFlags.locale = locale;
 
+    // Normalize throttlingMethod
+    settingsWithFlags.throttlingMethod = settingsWithFlags.throttlingMethod === 'none' ?
+      'provided' : settingsWithFlags.throttlingMethod;
+
     return settingsWithFlags;
   }
 

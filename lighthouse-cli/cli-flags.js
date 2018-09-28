@@ -122,8 +122,8 @@ function getFlags(manualArgv) {
         'list-trace-categories', 'view', 'verbose', 'quiet', 'help', 'print-config',
       ])
       .choices('output', printer.getValidOutputOptions())
-      .choices('emulated-form-factor', ['mobile', 'desktop', 'none'])
-      .choices('throttling-method', ['devtools', 'provided', 'simulate'])
+      .choices('emulated-form-factor', ['mobile', 'desktop', 'provided', 'none'])
+      .choices('throttling-method', ['devtools', 'provided', 'simulate', 'none'])
       .choices('preset', ['full', 'perf', 'mixed-content'])
       // force as an array
       // note MUST use camelcase versions or only the kebab-case version will be forced

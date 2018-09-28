@@ -87,8 +87,8 @@ declare global {
       gatherMode?: boolean | string;
       disableStorageReset?: boolean;
       disableDeviceEmulation?: boolean;
-      emulatedFormFactor?: 'mobile'|'desktop'|'none';
-      throttlingMethod?: 'devtools'|'simulate'|'provided';
+      emulatedFormFactor?: 'mobile'|'desktop'|'provided'|'none';
+      throttlingMethod?: 'devtools'|'simulate'|'provided'|'none';
       throttling?: ThrottlingSettings;
       onlyAudits?: string[] | null;
       onlyCategories?: string[] | null;
