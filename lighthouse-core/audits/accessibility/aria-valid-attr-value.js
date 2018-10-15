@@ -14,9 +14,9 @@ const AxeAudit = require('./axe-audit');
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Title of an accesibility audit that evaluates if all elements that have any aria HTML attribute have valid values for those attributes. This descriptive title is shown to users when no user action is required. */
+  /** Title of an accesibility audit that evaluates if all elements that have an ARIA HTML attribute have a valid value for that attribute. This title is descriptive of the successful state and is shown to users when no user action is required. */
   title: '`[aria-*]` attributes have valid values',
-  /** Title of an accesibility audit that evaluates if all elements that have any aria HTML attribute have valid values for those attributes. This imperative title is shown to users when there is a failure that needs to be addressed. */
+  /** Title of an accesibility audit that evaluates if all elements that have an ARIA HTML attribute have a valid value for that attribute. This title is descriptive of the failing state and is shown to users when there is a failure that needs to be addressed. */
   failureTitle: '`[aria-*]` attributes do not have valid values',
   /** Description of a Lighthouse audit that tells the user *why* they should try to pass. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Assistive technologies, like screen readers, can\'t interpret ARIA ' +

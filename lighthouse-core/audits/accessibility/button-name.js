@@ -14,9 +14,9 @@ const AxeAudit = require('./axe-audit');
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Title of an accesibility audit that evaluates if all button elements have names accessible to screen readers. This descriptive title is shown to users when no user action is required. */
+  /** Title of an accesibility audit that evaluates if all button elements have names accessible to screen readers. This title is descriptive of the successful state and is shown to users when no user action is required. */
   title: 'Buttons have an accessible name',
-  /** Title of an accesibility audit that evaluates if all button elements have names accessible to screen readers. This imperative title is shown to users when there is a failure that needs to be addressed. */
+  /** Title of an accesibility audit that evaluates if all button elements have names accessible to screen readers. This title is descriptive of the failing state and is shown to users when there is a failure that needs to be addressed. */
   failureTitle: 'Buttons do not have an accessible name',
   /** Description of a Lighthouse audit that tells the user *why* they should try to pass. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'When a button doesn\'t have an accessible name, screen readers announce it ' +

@@ -14,9 +14,9 @@ const AxeAudit = require('./axe-audit');
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Title of an accesibility audit that evaluates if all video elements have child track elements that contain a description of the video content. This descriptive title is shown to users when no user action is required. */
+  /** Title of an accesibility audit that evaluates if all video elements have child track elements that contain a description of the video content. This title is descriptive of the successful state and is shown to users when no user action is required. */
   title: '`<video>` elements contain a `<track>` element with `[kind="description"]`',
-  /** Title of an accesibility audit that evaluates if all video elements have child track elements that contain a description of the video content. This imperative title is shown to users when there is a failure that needs to be addressed. */
+  /** Title of an accesibility audit that evaluates if all video elements have child track elements that contain a description of the video content. This title is descriptive of the failing state and is shown to users when there is a failure that needs to be addressed. */
   failureTitle: '`<video>` elements do not contain a `<track>` element with ' +
       '`[kind="description"]`.',
   /** Description of a Lighthouse audit that tells the user *why* they should try to pass. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */

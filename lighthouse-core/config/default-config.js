@@ -35,11 +35,11 @@ const UIStrings = {
   a11yColorContrastGroupTitle: 'Color Contrast Is Satisfactory',
   /* Description of the color contrast section within the Accessibility category. Within this section are audits with descriptive titles that highlight the color and vision aspects of the page's accessibility that are passing or failing. */
   a11yColorContrastGroupDescription: 'These are opportunities to improve the legibility of your content.',
-  /* Title of the screen reader annotation section within the Accessibility category. Within this section are audits with descriptive titles that highlight the screen reader readability aspects of the page's accessibility that are passing or failing. */
+  /* Title of the screen reader annotation section within the Accessibility category. Within this section are audits with descriptive titles that highlight the screen reader readability aspects of the page's accessibility that are passing or failing. 'Elements' refers to HTML elements. */
   a11yDescribeContentsGroupTitle: 'Elements Describe Contents Well',
   /* Description of the screen reader annotation section within the Accessibility category. Within this section are audits with descriptive titles that highlight the screen reader readability aspects of the page's accessibility that are passing or failing. */
   a11yDescribeContentsGroupDescription: 'These are opportunities to make your content easier to understand for a user of assistive technology, like a screen reader.',
-  /* Title of the HTML validity section within the Accessibility category. Within this section are audits with descriptive titles that highlight structural HTML aspects of the page's accessibility that are passing or failing. */
+  /* Title of the HTML validity section within the Accessibility category. Within this section are audits with descriptive titles that highlight structural HTML aspects of the page's accessibility that are passing or failing (i.e. that list items are contained within list parents, etc). 'Elements' refers to HTML elements. */
   a11yWellStructuredGroupTitle: 'Elements Are Well Structured',
   /* Description of the HTML validity section within the Accessibility category. Within this section are audits with descriptive titles that highlight structural HTML aspects of the page's accessibility that are passing or failing. */
   a11yWellStructuredGroupDescription: 'These are opportunities to make sure your HTML is appropriately structured.',
@@ -47,13 +47,13 @@ const UIStrings = {
   a11yAriaGroupTitle: 'ARIA Attributes Follow Best Practices',
   /* Description of the ARIA validity section within the Accessibility category. Within this section are audits with descriptive titles that highlight if whether all the aria-* HTML attributes have been used properly. */
   a11yAriaGroupDescription: 'These are opportunities to improve the usage of ARIA in your application which may enhance the experience for users of assistive technology, like a screen reader.',
-  /* Title of the HTML attribute validity section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the HTML attribute values on the page are used correctly. */
+  /* Title of the HTML attribute validity section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the HTML attribute values on the page are used correctly. 'Elements' refers to HTML elements. */
   a11yCorrectAttributesGroupTitle: 'Elements Use Attributes Correctly',
   /* Description of the HTML attribute validity section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the HTML attribute values on the page are used correctly. */
   a11yCorrectAttributesGroupDescription: 'These are opportunities to improve the configuration of your HTML elements.',
-  /* Title of the element naming section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the non-textual elements on the page have names discernible by a screen reader. */
+  /* Title of the HTML element naming section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the non-textual HTML elements on the page have names discernible by a screen reader. */
   a11yElementNamesGroupTitle: 'Elements Have Discernible Names',
-  /* Description of the element naming section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the non-textual elements on the page have names discernible by a screen reader. */
+  /* Description of the HTML element naming section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the non-textual HTML elements on the page have names discernible by a screen reader. */
   a11yElementNamesGroupDescription: 'These are opportunities to improve the semantics of the controls in your application. This may enhance the experience for users of assistive technology, like a screen reader.',
   /* Title of the language section within the Accessibility category. Within this section are audits with descriptive titles that highlight if the language has been annotated in the correct HTML attributes on the page. */
   a11yLanguageGroupTitle: 'Page Specifies Valid Language',
