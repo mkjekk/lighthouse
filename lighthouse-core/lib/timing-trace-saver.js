@@ -34,7 +34,7 @@ function checkEventOverlap(entry, prevEntries) {
 function generateTraceEvents(entries, trackName = 'measures') {
   if (!Array.isArray(entries)) return [];
 
-  /** @type {!LH.TraceEvent[]} */
+  /** @type {LH.TraceEvent[]} */
   const currentTrace = [];
   let id = 0;
 
@@ -85,7 +85,7 @@ function generateTraceEvents(entries, trackName = 'measures') {
 /**
  * Writes a trace file to disk
  * @param {LH.Result} lhr
- * @return {!string};
+ * @return {string}
  */
 function createTraceString(lhr) {
   const gatherEntries = lhr.timing.entries.filter(entry => entry.gather);
