@@ -78,4 +78,27 @@ describe('PWA: load-fast-enough-for-pwa audit', () => {
     expect(result.rawValue).toBeGreaterThan(2000);
     expect(Math.round(result.rawValue)).toMatchSnapshot();
   });
+
+
+  it('override with simulated result fails a bad simulated TTI value', async () => {
+    const topLevelTasks = [
+      {ts: 1000, duration: 1000},
+      {ts: 3000, duration: 1000},
+      {ts: 5000, duration: 1000},
+      {ts: 9000, duration: 1000},
+      {ts: 12000, duration: 1000},
+      {ts: 14900, duration: 1000},
+    ];
+    const longTrace = createTestTrace({navigationStart: 0, traceEnd: 20000, topLevelTasks});
+
+    const artifacts = {
+      traces: {defaultPass: longTrace},
+      devtoolsLogs: {defaultPass: devtoolsLog},
+    };
+
+    const settings = {throttlingMethod: 'provided', throttling: {rttMs: 40, throughput: 100000}};
+    const result = await FastPWAAudit.audit(artifacts, {settings, computedCache: new Map()});
+    expect(result.displayValue).toContain('Interactive on simulated mobile network at %d\xa0s');
+    expect(result.rawValue).toBeGreaterThan(10000);
+  });
 });
