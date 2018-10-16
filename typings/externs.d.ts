@@ -69,10 +69,14 @@ declare global {
       cpuSlowdownMultiplier?: number
     }
 
-    export type Locale = 'en-US'|'en'|'en-AU'|'en-GB'|'en-IE'|'en-SG'|'en-ZA'|'en-IN'|'ar-XB'|'ar'|'bg'|'bs'|'ca'|'cs'|'da'|'de'|'el'|'en-XA'|'es'|'fi'|'fil'|'fr'|'he'|'hi'|'hr'|'hu'|'gsw'|'id'|'in'|'it'|'iw'|'ja'|'ko'|'lt'|'lv'|'mo'|'nl'|'nb'|'no'|'pl'|'pt'|'pt-PT'|'ro'|'ru'|'sk'|'sl'|'sr'|'sr-Latn'|'sv'|'ta'|'te'|'th'|'tl'|'tr'|'uk'|'vi'|'zh'|'zh-HK'|'zh-TW';
+    export type Locale = 'en-US'|'en'|'en-AU'|'en-GB'|'en-IE'|'en-SG'|'en-ZA'|'en-IN'|'ar-XB'|'ar'|'bg'|'bs'|'ca'|'cs'|'da'|'de'|'el'|'en-XA'|'es'|'fi'|'fil'|'fr'|'he'|'hi'|'hr'|'hu'|'gsw'|'id'|'in'|'it'|'iw'|'ja'|'ko'|'ln'|'lt'|'lv'|'mo'|'nl'|'nb'|'no'|'pl'|'pt'|'pt-PT'|'ro'|'ru'|'sk'|'sl'|'sr'|'sr-Latn'|'sv'|'ta'|'te'|'th'|'tl'|'tr'|'uk'|'vi'|'zh'|'zh-HK'|'zh-TW';
 
     export type OutputMode = 'json' | 'html' | 'csv';
 
+    /**
+     * Options that are found in both the flags used by the Lighthouse module
+     * interface and the Config's `settings` object.
+     */
     interface SharedFlagsSettings {
       output?: OutputMode|OutputMode[];
       locale?: Locale;
@@ -83,6 +87,7 @@ declare global {
       gatherMode?: boolean | string;
       disableStorageReset?: boolean;
       disableDeviceEmulation?: boolean;
+      emulatedFormFactor?: 'mobile'|'desktop'|'none';
       throttlingMethod?: 'devtools'|'simulate'|'provided';
       throttling?: ThrottlingSettings;
       onlyAudits?: string[] | null;
@@ -91,6 +96,10 @@ declare global {
       extraHeaders?: Crdp.Network.Headers | null; // See extraHeaders TODO in bin.js
     }
 
+    /**
+     * Extends the flags in SharedFlagsSettings with flags used to configure the
+     * Lighthouse module but will not end up in the Config settings.
+     */
     export interface Flags extends SharedFlagsSettings {
       port?: number;
       hostname?: string;
@@ -99,8 +108,8 @@ declare global {
     }
 
     /**
-     * Flags accepted by Lighthouse, plus additional flags just
-     * for controlling the CLI.
+     * Extends the flags accepted by the Lighthouse module with additional flags
+     * used just for controlling the CLI.
      */
     export interface CliFlags extends Flags {
       _: string[];
@@ -114,10 +123,11 @@ declare global {
       preset?: 'full'|'mixed-content'|'perf';
       verbose: boolean;
       quiet: boolean;
-      // following are given defaults in cli-flags, so not optional like in Flags or SharedFlagsSettings
+      // following are given defaults in cli-flags, so are not optional like in Flags or SharedFlagsSettings
       output: OutputMode[];
       port: number;
       hostname: string;
+      printConfig: boolean;
     }
 
     export interface RunnerResult {

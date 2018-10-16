@@ -53,9 +53,6 @@ function getMockedEmulationDriver(emulationFn, netThrottleFn, cpuThrottleFn,
     }
     cleanBrowserCaches() {}
     clearDataForOrigin() {}
-    getUserAgent() {
-      return Promise.resolve('Fake user agent');
-    }
   };
   const EmulationMock = class extends Connection {
     sendCommand(command, params) {
@@ -126,7 +123,8 @@ describe('GatherRunner', function() {
     const options = {url, driver, config, settings};
 
     const results = await GatherRunner.run([], options);
-    expect(results.HostUserAgent).toEqual('Fake user agent');
+    expect(results.HostUserAgent).toEqual(fakeDriver.protocolGetVersionResponse.userAgent);
+    expect(results.HostUserAgent).toMatch(/Chrome\/\d+/);
   });
 
   it('collects network user agent as an artifact', async () => {
@@ -176,7 +174,7 @@ describe('GatherRunner', function() {
     );
 
     return GatherRunner.setupDriver(driver, {
-      settings: {},
+      settings: {emulatedFormFactor: 'mobile'},
     }).then(_ => {
       assert.ok(tests.calledDeviceEmulation, 'did not call device emulation');
       assert.deepEqual(tests.calledNetworkEmulation, {
@@ -215,6 +213,25 @@ describe('GatherRunner', function() {
     });
   });
 
+  it('uses correct emulation form factor', async () => {
+    let emulationParams;
+    const driver = getMockedEmulationDriver(
+      params => emulationParams = params,
+      () => true,
+      () => true
+    );
+
+    await GatherRunner.setupDriver(driver, {settings: {emulatedFormFactor: 'mobile'}});
+    expect(emulationParams).toMatchObject({mobile: true});
+
+    await GatherRunner.setupDriver(driver, {settings: {emulatedFormFactor: 'desktop'}});
+    expect(emulationParams).toMatchObject({mobile: false});
+
+    emulationParams = undefined;
+    await GatherRunner.setupDriver(driver, {settings: {emulatedFormFactor: 'none'}});
+    expect(emulationParams).toBe(undefined);
+  });
+
   it('stops throttling when not devtools', () => {
     const tests = {
       calledDeviceEmulation: false,
@@ -233,6 +250,7 @@ describe('GatherRunner', function() {
 
     return GatherRunner.setupDriver(driver, {
       settings: {
+        emulatedFormFactor: 'mobile',
         throttlingMethod: 'provided',
       },
     }).then(_ => {
@@ -252,6 +270,7 @@ describe('GatherRunner', function() {
     };
     const createEmulationCheck = variable => (...args) => {
       tests[variable] = args;
+
       return true;
     };
     const driver = getMockedEmulationDriver(
@@ -262,6 +281,7 @@ describe('GatherRunner', function() {
 
     return GatherRunner.setupDriver(driver, {
       settings: {
+        emulatedFormFactor: 'mobile',
         throttlingMethod: 'devtools',
         throttling: {
           requestLatencyMs: 100,

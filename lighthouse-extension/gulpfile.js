@@ -3,6 +3,7 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 // HACK: patch astw before it's required to use acorn with ES2018
 // We add the right acorn version to package.json deps, resolve the path to it here,
 // and then inject the modified require statement into astw's code.
@@ -34,6 +35,22 @@ const pkg = require('../package.json');
 
 const distDir = 'dist';
 
+// list of all consumers we build for (easier to understand which file is used for which)
+const CONSUMERS = {
+  DEVTOOLS: {
+    src: 'devtools-entry.js',
+    dist: 'lighthouse-dt-bundle.js',
+  },
+  EXTENSION: {
+    src: 'extension-entry.js',
+    dist: 'lighthouse-ext-bundle.js',
+  },
+  LIGHTRIDER: {
+    src: 'lightrider-entry.js',
+    dist: 'lighthouse-lr-bundle.js',
+  },
+};
+
 const VERSION = pkg.version;
 const COMMIT_HASH = require('child_process')
   .execSync('git rev-parse HEAD')
@@ -47,8 +64,13 @@ const audits = LighthouseRunner.getAuditList()
 const gatherers = LighthouseRunner.getGathererList()
     .map(f => '../lighthouse-core/gather/gatherers/' + f.replace(/\.js$/, ''));
 
-const computedArtifacts = LighthouseRunner.getComputedGathererList()
-    .map(f => '../lighthouse-core/gather/computed/' + f.replace(/\.js$/, ''));
+const locales = fs.readdirSync('../lighthouse-core/lib/i18n/locales/')
+    .map(f => require.resolve(`../lighthouse-core/lib/i18n/locales/${f}`));
+
+const isDevtools = file =>
+  file.endsWith(CONSUMERS.DEVTOOLS.src);
+const isExtension = file =>
+  file.endsWith(CONSUMERS.EXTENSION.src);
 
 gulp.task('extras', () => {
   return gulp.src([
@@ -96,7 +118,7 @@ gulp.task('chromeManifest', () => {
   const manifestOpts = {
     buildnumber: false,
     background: {
-      target: 'scripts/lighthouse-ext-background.js',
+      target: `scripts/${CONSUMERS.EXTENSION.dist}`,
     },
   };
   return gulp.src('app/manifest.json')
@@ -114,10 +136,8 @@ function applyBrowserifyTransforms(bundle) {
 }
 
 gulp.task('browserify-lighthouse', () => {
-  return gulp.src([
-    'app/src/lighthouse-background.js',
-    'app/src/lighthouse-ext-background.js',
-  ], {read: false})
+  const consumerSources = Object.values(CONSUMERS).map(consumer => `app/src/${consumer.src}`);
+  return gulp.src(consumerSources, {read: false})
     .pipe(tap(file => {
       let bundle = browserify(file.path); // , {debug: true}); // for sourcemaps
       bundle = applyBrowserifyTransforms(bundle);
@@ -135,8 +155,12 @@ gulp.task('browserify-lighthouse', () => {
       bundle.ignore(require.resolve('../lighthouse-core/gather/connections/cri.js'));
 
       // Prevent the DevTools background script from getting the stringified HTML.
-      if (/lighthouse-background/.test(file.path)) {
+      if (isDevtools(file.path)) {
         bundle.ignore(require.resolve('../lighthouse-core/report/html/html-report-assets.js'));
+      }
+
+      if (isDevtools(file.path) || isExtension(file.path)) {
+        bundle.ignore(locales);
       }
 
       // Expose the audits, gatherers, and computed artifacts so they can be dynamically loaded.
@@ -148,9 +172,6 @@ gulp.task('browserify-lighthouse', () => {
       gatherers.forEach(gatherer => {
         bundle = bundle.require(gatherer, {expose: gatherer.replace(driverPath, '../gather/')});
       });
-      computedArtifacts.forEach(artifact => {
-        bundle = bundle.require(artifact, {expose: artifact.replace(corePath, './')});
-      });
 
       // browerify's url shim doesn't work with .URL in node_modules,
       // and within robots-parser, it does `var URL = require('url').URL`, so we expose our own.
@@ -161,6 +182,18 @@ gulp.task('browserify-lighthouse', () => {
       // Inject the new browserified contents back into our gulp pipeline
       file.contents = bundle.bundle();
     }))
+    .pipe(debug({title: ''}))
+    .pipe(tap(file => {
+      // rename our bundles
+      const basename = path.basename(file.path);
+
+      // find the dist file of the given file
+      const consumer = Object.values(CONSUMERS)
+        .find(consumer => consumer.src === basename);
+
+      file.path = file.path.replace(consumer.src, consumer.dist);
+    }))
+    .pipe(debug({title: 'renamed into:'}))
     .pipe(gulp.dest('app/scripts'))
     .pipe(gulp.dest('dist/scripts'));
 });
@@ -197,9 +230,8 @@ gulp.task('compilejs', () => {
     // sourceMaps: 'both'
   };
 
-  return gulp.src([
-    'dist/scripts/lighthouse-background.js',
-    'dist/scripts/lighthouse-ext-background.js'])
+  const compiledSources = Object.values(CONSUMERS).map(consumer => `dist/scripts/${consumer.dist}`);
+  return gulp.src(compiledSources)
     .pipe(tap(file => {
       const minified = babel.transform(file.contents.toString(), opts).code;
       file.contents = new Buffer(minified);
@@ -214,7 +246,6 @@ gulp.task('clean', () => {
     paths.forEach(path => gutil.log('deleted:', gutil.colors.blue(path)))
   );
 });
-
 
 gulp.task('watch', ['browserify', 'html'], () => {
   livereload.listen();
@@ -237,9 +268,18 @@ gulp.task('watch', ['browserify', 'html'], () => {
 
 gulp.task('package', function() {
   const manifest = require(`./${distDir}/manifest.json`);
-  return gulp.src(`${distDir}/**`)
-  .pipe(zip(`lighthouse-${manifest.version}.zip`))
-  .pipe(gulp.dest('package'));
+
+  return del([
+    `${distDir}/scripts/${CONSUMERS.DEVTOOLS.dist}`,
+    `${distDir}/scripts/${CONSUMERS.LIGHTRIDER.dist}`,
+  ])
+    .then(paths =>
+      paths.forEach(path => gutil.log('deleted:', gutil.colors.blue(path))))
+    .then(() =>
+      gulp.src(`${distDir}/**`)
+          .pipe(zip(`lighthouse-${manifest.version}.zip`))
+          .pipe(gulp.dest('package'))
+    );
 });
 
 gulp.task('build', cb => {
