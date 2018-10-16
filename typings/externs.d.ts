@@ -199,7 +199,7 @@ declare global {
       tid: number;
       ts: number;
       dur: number;
-      ph: string; // one of 'B'|'b'|'D'|'E'|'e'|'F'|'I'|'M'|'N'|'n'|'O'|'R'|'S'|'T'|'X';
+      ph: 'B'|'b'|'D'|'E'|'e'|'F'|'I'|'M'|'N'|'n'|'O'|'R'|'S'|'T'|'X';
       s?: 't';
       id?: string;
     }

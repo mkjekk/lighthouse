@@ -65,6 +65,7 @@ function generateTraceEvents(entries, trackName = 'measures') {
   });
 
   // Add labels
+  /** @type {LH.TraceEvent} */
   const metaEvtBase = {
     pid: 0,
     tid: trackName === 'measures' ? 50 : 75,
