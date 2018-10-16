@@ -395,6 +395,9 @@ class GatherRunner {
     // Take only unique LighthouseRunWarnings.
     baseArtifacts.LighthouseRunWarnings = Array.from(new Set(baseArtifacts.LighthouseRunWarnings));
 
+    // Take the timing entries we've gathered so far.
+    baseArtifacts.Timing = log.takeTimeEntries();
+
     // TODO(bckenny): correct Partial<LH.GathererArtifacts> at this point to drop cast.
     return /** @type {LH.Artifacts} */ ({...baseArtifacts, ...gathererArtifacts});
   }
