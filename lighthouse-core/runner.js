@@ -128,7 +128,7 @@ class Runner {
         log.timeEnd(runnerStatus);
       } catch (e) {}
       artifacts.Timing.push(...log.takeTimeEntries());
-      const runnerEntry = artifacts.Timing.find(e => e.name === 'lh:runner:run')
+      const runnerEntry = artifacts.Timing.find(e => e.name === 'lh:runner:run');
 
       /** @type {LH.Result} */
       const lhr = {

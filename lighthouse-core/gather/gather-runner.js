@@ -124,16 +124,20 @@ class GatherRunner {
    * @param {Driver} driver
    * @return {Promise<void>}
    */
-  static disposeDriver(driver) {
+  static async disposeDriver(driver) {
     const status = {msg: 'Disconnecting from browser...', id: 'lh:gather:disconnect'};
+
     log.time(status);
-    return driver.disconnect().catch(err => {
+    try {
+      await driver.disconnect();
+    } catch (err) {
       // Ignore disconnecting error if browser was already closed.
       // See https://github.com/GoogleChrome/lighthouse/issues/1583
       if (!(/close\/.*status: 500$/.test(err.message))) {
         log.error('GatherRunner disconnect', err.message);
       }
-    }).then(_ => log.timeEnd(status))
+    }
+    log.timeEnd(status);
   }
 
   /**

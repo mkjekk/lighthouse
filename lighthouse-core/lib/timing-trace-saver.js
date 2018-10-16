@@ -19,6 +19,7 @@ function checkEventOverlap(entry, prevEntries) {
     const thisEnd = entry.startTime + entry.duration;
     const isOverlap = prevEnd > entry.startTime && prevEnd < thisEnd;
     if (isOverlap) {
+      // eslint-disable-next-line no-console
       console.error(`Two measures overlap! ${prevEntry.name} & ${entry.name}`);
     }
   }
