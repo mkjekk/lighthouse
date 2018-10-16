@@ -42,6 +42,7 @@ function generateTraceEvents(entries, trackName = 'measures') {
   entries.forEach((entry, i) => {
     checkEventOverlap(entry, entries.slice(0, i));
 
+    /** @type {LH.TraceEvent} */
     const traceEvent = {
       name: entry.name,
       cat: entry.entryType,
