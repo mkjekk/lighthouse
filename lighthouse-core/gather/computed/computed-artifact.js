@@ -65,11 +65,12 @@ class ComputedArtifact {
     // Need to cast since `this.compute_(...)` returns the concrete return type
     // of the base class's compute_, not the called derived class's.
     const artifactPromise = /** @type {ReturnType<this['compute_']>} */ (
-      await this.compute_(requiredArtifacts, this._allComputedArtifacts));
+      this.compute_(requiredArtifacts, this._allComputedArtifacts));
     this._cache.set(requiredArtifacts, artifactPromise);
 
+    const artifactValue = await artifactPromise;
     log.timeEnd(status);
-    return artifactPromise;
+    return artifactValue;
   }
 }
 

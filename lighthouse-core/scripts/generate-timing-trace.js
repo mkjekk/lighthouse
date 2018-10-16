@@ -10,6 +10,14 @@ const path = require('path');
 const {createTraceString} = require('../lib/timing-trace-saver');
 
 /**
+ * @fileoverview This script takes the timing entries saved during a Lighthouse run and generates
+ * a trace file that's readable in chrome://tracing.
+ *
+ * input = LHR.json
+ * output = LHR.timing.trace.json
+ */
+
+/**
  * @param {string} msg
  */
 function printErrorAndQuit(msg) {

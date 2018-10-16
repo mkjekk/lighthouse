@@ -83,6 +83,19 @@ const expectedTrace = {
 
 
 describe('generateTraceEvents', () => {
+  let consoleError;
+  let origConsoleError;
+
+  beforeEach(() => {
+    origConsoleError = console.error;
+    consoleError = jest.fn();
+    console.error = consoleError;
+  });
+
+  afterEach(() => {
+    console.error = origConsoleError;
+  });
+
   it('generates a single trace event', () => {
     const event = generateTraceEvents(mockEntries);
     assert.deepStrictEqual(event.slice(0, 1), expectedTrace.traceEvents.slice(0, 1));
@@ -102,7 +115,10 @@ describe('generateTraceEvents', () => {
       entryType: 'measure',
     },
     ];
-    assert.throws(_ => generateTraceEvents(overlappingEntries), /measures overlap/);
+
+    generateTraceEvents(overlappingEntries);
+    expect(consoleError).toHaveBeenCalled();
+    expect(consoleError.mock.calls[0][0]).toContain('measures overlap');
   });
 });
 

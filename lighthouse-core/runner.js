@@ -88,6 +88,9 @@ class Runner {
         }
       }
 
+      // Make sure artifacts.Timing exists if we're running off of old artifacts
+      if (!artifacts.Timing) artifacts.Timing = [];
+
       // Potentially quit early
       if (settings.gatherMode && !settings.auditMode) return;
 
