@@ -88,9 +88,6 @@ class Runner {
         }
       }
 
-      // Make sure artifacts.Timing exists if we're running off of old artifacts
-      if (!artifacts.Timing) artifacts.Timing = [];
-
       // Potentially quit early
       if (settings.gatherMode && !settings.auditMode) return;
 
@@ -130,8 +127,10 @@ class Runner {
       try {
         log.timeEnd(runnerStatus);
       } catch (e) {}
-      artifacts.Timing.push(...log.takeTimeEntries());
-      const runnerEntry = artifacts.Timing.find(e => e.name === 'lh:runner:run');
+
+      const timingEntries = artifacts.Timing || [];
+      timingEntries.push(...log.takeTimeEntries());
+      const runnerEntry = timingEntries.find(e => e.name === 'lh:runner:run');
 
       /** @type {LH.Result} */
       const lhr = {
@@ -151,7 +150,7 @@ class Runner {
         configSettings: settings,
         categories,
         categoryGroups: runOpts.config.groups || undefined,
-        timing: {entries: artifacts.Timing, total: runnerEntry && runnerEntry.duration || 0},
+        timing: {entries: timingEntries, total: runnerEntry && runnerEntry.duration || 0},
         i18n: {
           rendererFormattedStrings: i18n.getRendererFormattedStrings(settings.locale),
           icuMessagePaths: {},

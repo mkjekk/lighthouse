@@ -68,9 +68,8 @@ class ComputedArtifact {
       this.compute_(requiredArtifacts, this._allComputedArtifacts));
     this._cache.set(requiredArtifacts, artifactPromise);
 
-    const artifactValue = await artifactPromise;
-    log.timeEnd(status);
-    return artifactValue;
+    artifactPromise.then(() => log.timeEnd(status));
+    return artifactPromise;
   }
 }
 
