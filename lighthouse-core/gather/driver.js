@@ -78,6 +78,13 @@ class Driver {
       // properties. See https://github.com/Microsoft/TypeScript/pull/22348.
       this._eventEmitter.emit(event.method, event.params);
     });
+
+    /**
+     * Used for monitoring network status events during gotoURL.
+     * @type {?LH.Crdp.Security.SecurityStateChangedEvent}
+     * @private
+     */
+    this._lastSecurityState = null;
   }
 
   static get traceCategories() {
@@ -886,6 +893,26 @@ class Driver {
     });
   }
 
+  async listenForSecurityStateChanges() {
+    this.on('Security.securityStateChanged', state => {
+      this._lastSecurityState = state;
+    });
+    await this.sendCommand('Security.enable');
+  }
+
+  /**
+   * @return {LH.Crdp.Security.SecurityStateChangedEvent}
+   */
+  getSecurityState() {
+    if (!this._lastSecurityState) {
+      // happens if 'listenForSecurityStateChanges' is not called,
+      // or if some assumptions about the Security domain are wrong
+      throw new Error('Expected a security state.');
+    }
+
+    return this._lastSecurityState;
+  }
+
   /**
    * @param {string} name The name of API whose permission you wish to query
    * @return {Promise<string>} The state of permissions, resolved in a promise.
@@ -1174,7 +1201,8 @@ class Driver {
   async cacheNatives() {
     await this.evaluateScriptOnNewDocument(`window.__nativePromise = Promise;
         window.__nativeError = Error;
-        window.__nativeURL = URL;`);
+        window.__nativeURL = URL;
+        window.__ElementMatches = Element.prototype.matches;`);
   }
 
   /**
@@ -1206,17 +1234,16 @@ class Driver {
    * @return {Promise<void>}
    */
   async dismissJavaScriptDialogs() {
-    await this.sendCommand('Page.enable');
-
     this.on('Page.javascriptDialogOpening', data => {
       log.warn('Driver', `${data.type} dialog opened by the page automatically suppressed.`);
 
-      // rejection intentionally unhandled
       this.sendCommand('Page.handleJavaScriptDialog', {
         accept: true,
         promptText: 'Lighthouse prompt response',
-      });
+      }).catch(err => log.warn('Driver', err));
     });
+
+    await this.sendCommand('Page.enable');
   }
 }
 
