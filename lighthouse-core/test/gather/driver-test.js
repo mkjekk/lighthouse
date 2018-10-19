@@ -110,6 +110,8 @@ connection.sendCommand = function(command, params) {
   }
 };
 
+driverStub.setProtocolTimeout(MAX_WAIT_FOR_PROTOCOL);
+
 /* eslint-env jest */
 
 describe('Browser Driver', () => {
@@ -162,10 +164,10 @@ describe('Browser Driver', () => {
   });
 
   it('throws if getRequestContent takes too long', () => {
-    return driverStub.getRequestContent('', MAX_WAIT_FOR_PROTOCOL).then(_ => {
+    return driverStub.getRequestContent('').then(_ => {
       assert.ok(false, 'long-running getRequestContent supposed to reject');
     }, e => {
-      assert.equal(e.code, 'REQUEST_CONTENT_TIMEOUT');
+      assert.equal(e.code, 'PROTOCOL_TIMEOUT');
     });
   });
 
