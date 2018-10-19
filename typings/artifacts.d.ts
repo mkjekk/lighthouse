@@ -307,6 +307,7 @@ declare global {
         startTime: number;
         duration: number;
         entryType: string;
+        /** Whether timing entry was collected during artifact gathering. */
         gather?: boolean;
         toJSON: any;
       }
