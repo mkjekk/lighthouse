@@ -37,7 +37,7 @@ declare global {
       settings: Config.Settings;
       /** The URL initially requested and the post-redirects URL that was actually loaded. */
       URL: {requestedUrl: string, finalUrl: string};
-      /** Holds the timing instrumentation of a gather-only run */
+      /** The timing instrumentation of the gather portion of a run. */
       Timing: Artifacts.MeasureEntry[];
     }
 
