@@ -124,9 +124,7 @@ class Runner {
       log.timeEnd(resultsStatus);
 
       // Summarize all the timings and drop onto the LHR
-      try {
-        log.timeEnd(runnerStatus);
-      } catch (e) {}
+      log.timeEnd(runnerStatus);
 
       const timingEntries = artifacts.Timing || [];
       timingEntries.push(...log.takeTimeEntries());
