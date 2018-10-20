@@ -92,7 +92,7 @@ class Driver {
      * @type {number}
      * @private
      */
-    this._protocolTimeout = DEFAULT_PROTOCOL_TIMEOUT;
+    this._nextProtocolTimeout = DEFAULT_PROTOCOL_TIMEOUT;
   }
 
   static get traceCategories() {
@@ -148,13 +148,6 @@ class Driver {
    */
   getBenchmarkIndex() {
     return this.evaluateAsync(`(${pageFunctions.ultradumbBenchmarkString})()`);
-  }
-
-  /**
-   * @param {number} timeout
-   */
-  setProtocolTimeout(timeout) {
-    this._protocolTimeout = timeout;
   }
 
   /**
@@ -256,13 +249,25 @@ class Driver {
   }
 
   /**
+   * NOTE: This can eventually be replaced when TypeScript
+   * resolves https://github.com/Microsoft/TypeScript/issues/5453.
+   * @param {number} timeout
+   */
+  setNextProtocolTimeout(timeout) {
+    this._nextProtocolTimeout = timeout;
+  }
+
+  /**
    * Call protocol methods.
+   * To configure the timeout for the next call, use 'setNextProtocolTimeout'.
    * @template {keyof LH.CrdpCommands} C
    * @param {C} method
-   * @param {LH.CrdpCommands[C]['paramsType']} params,
+   * @param {LH.CrdpCommands[C]['paramsType']} params
    * @return {Promise<LH.CrdpCommands[C]['returnType']>}
    */
   sendCommand(method, ...params) {
+    const timeout = this._nextProtocolTimeout;
+    this._nextProtocolTimeout = DEFAULT_PROTOCOL_TIMEOUT;
     const domainCommand = /^(\w+)\.(enable|disable)$/.exec(method);
     if (domainCommand) {
       const enable = domainCommand[2] === 'enable';
@@ -270,19 +275,20 @@ class Driver {
         return Promise.resolve();
       }
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const asyncTimeout = setTimeout((_ => {
         const err = new LHError(LHError.errors.PROTOCOL_TIMEOUT);
         err.message += ` Method: ${method}`;
         reject(err);
-      }), this._protocolTimeout);
-      this._connection.sendCommand(method, ...params).then(result => {
+      }), timeout);
+      try {
+        const result = await this._connection.sendCommand(method, ...params);
         clearTimeout(asyncTimeout);
         resolve(result);
-      }).catch(err => {
+      } catch (err) {
         clearTimeout(asyncTimeout);
         reject(err);
-      });
+      }
     });
   }
 
@@ -356,6 +362,7 @@ class Driver {
       contextId,
     };
 
+    this.setNextProtocolTimeout(60000);
     const response = await this.sendCommand('Runtime.evaluate', evaluationParams);
     if (response.exceptionDetails) {
       // An error occurred before we could even create a Promise, should be *very* rare
@@ -871,13 +878,15 @@ class Driver {
    * Return the body of the response with the given ID. Rejects if getting the
    * body times out.
    * @param {string} requestId
+   * @param {number} timeout
    * @return {Promise<string>}
    */
-  async getRequestContent(requestId) {
+  async getRequestContent(requestId, timeout = 5000) {
     requestId = NetworkRequest.getRequestIdForBackend(requestId);
 
     // Encoding issues may lead to hanging getResponseBody calls: https://github.com/GoogleChrome/lighthouse/pull/4718
     // driver.sendCommand will handle timeout after 5s.
+    this.setNextProtocolTimeout(timeout);
     const result = await this.sendCommand('Network.getResponseBody', {requestId});
     return result.body;
   }

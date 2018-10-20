@@ -179,6 +179,7 @@ const ERRORS = {
   PROTOCOL_TIMEOUT: {
     code: 'PROTOCOL_TIMEOUT',
     message: strings.protocolTimeout,
+    lhrRuntimeError: true,
   },
 
   // Hey! When adding a new error type, update lighthouse-result.proto too.
