@@ -394,8 +394,9 @@ class GatherRunner {
     try {
       await driver.connect();
       const baseArtifacts = await GatherRunner.getBaseArtifacts(options);
-      await GatherRunner.setupDriver(driver, options);
+      await GatherRunner.loadBlank(driver);
       baseArtifacts.BenchmarkIndex = await options.driver.getBenchmarkIndex();
+      await GatherRunner.setupDriver(driver, options);
 
       // Run each pass
       let isFirstPass = true;
