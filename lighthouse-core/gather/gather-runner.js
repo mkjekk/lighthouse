@@ -26,22 +26,22 @@ const Driver = require('../gather/driver.js'); // eslint-disable-line no-unused-
  * Execution sequence when GatherRunner.run() is called:
  *
  * 1. Setup
- *   A. navigate to about:blank
  *   B. driver.connect()
  *   C. GatherRunner.setupDriver()
- *     i. assertNoSameOriginServiceWorkerClients
- *     ii. beginEmulation
- *     iii. enableRuntimeEvents
- *     iv. evaluateScriptOnLoad rescue native Promise from potential polyfill
- *     v. register a performance observer
- *     vi. register dialog dismisser
- *     vii. clearDataForOrigin
+ *     i. navigate to a blank page
+ *     ii. assertNoSameOriginServiceWorkerClients
+ *     iii. retrieve and save userAgent
+ *     iv. beginEmulation
+ *     v. enableRuntimeEvents
+ *     vi. evaluateScriptOnLoad rescue native Promise from potential polyfill
+ *     vii. register a performance observer
+ *     viii. register dialog dismisser
+ *     iv. clearDataForOrigin
  *
  * 2. For each pass in the config:
  *   A. GatherRunner.beforePass()
- *     i. navigate to about:blank
- *     ii. Enable network request blocking for specified patterns
- *     iii. all gatherers' beforePass()
+ *     i. Enable network request blocking for specified patterns
+ *     ii. all gatherers' beforePass()
  *   B. GatherRunner.pass()
  *     i. cleanBrowserCaches() (if it's a perf run)
  *     ii. beginDevtoolsLog()
@@ -105,7 +105,9 @@ class GatherRunner {
   static async setupDriver(driver, options) {
     log.log('status', 'Initializing…');
     const resetStorage = !options.settings.disableStorageReset;
-    // Enable emulation based on settings
+    // In the devtools/extension case, we can't still be on the site while trying to clear state
+    // So we first navigate to a blank page, then apply our emulation & setup
+    await GatherRunner.loadBlank(driver);
     await driver.assertNoSameOriginServiceWorkerClients(options.requestedUrl);
     await driver.beginEmulation(options.settings);
     await driver.enableRuntimeEvents();
@@ -176,7 +178,7 @@ class GatherRunner {
   }
 
   /**
-   * Navigates to about:blank and calls beforePass() on gatherers before tracing
+   * Calls beforePass() on gatherers before tracing
    * has started and before navigation to the target page.
    * @param {LH.Gatherer.PassContext} passContext
    * @param {Partial<GathererResults>} gathererResults
@@ -185,9 +187,7 @@ class GatherRunner {
   static async beforePass(passContext, gathererResults) {
     const blockedUrls = (passContext.passConfig.blockedUrlPatterns || [])
       .concat(passContext.settings.blockedUrlPatterns || []);
-    const blankPage = passContext.passConfig.blankPage;
-    const blankDuration = passContext.passConfig.blankDuration;
-    await GatherRunner.loadBlank(passContext.driver, blankPage, blankDuration);
+
     // Set request blocking before any network activity
     // No "clearing" is done at the end of the pass since blockUrlPatterns([]) will unset all if
     // neccessary at the beginning of the next pass.
@@ -394,12 +394,11 @@ class GatherRunner {
     try {
       await driver.connect();
       const baseArtifacts = await GatherRunner.getBaseArtifacts(options);
-      await GatherRunner.loadBlank(driver);
-      baseArtifacts.BenchmarkIndex = await options.driver.getBenchmarkIndex();
       await GatherRunner.setupDriver(driver, options);
+      baseArtifacts.BenchmarkIndex = await options.driver.getBenchmarkIndex();
 
       // Run each pass
-      let firstPass = true;
+      let isFirstPass = true;
       for (const passConfig of passes) {
         const passContext = {
           driver: options.driver,
@@ -412,6 +411,10 @@ class GatherRunner {
         };
 
         await driver.setThrottling(options.settings, passConfig);
+        if (!isFirstPass) {
+          // Already on blank page if driver was just set up.
+          await GatherRunner.loadBlank(driver, passConfig.blankPage, passConfig.blankDuration);
+        }
         await GatherRunner.beforePass(passContext, gathererResults);
         await GatherRunner.pass(passContext, gathererResults);
         const passData = await GatherRunner.afterPass(passContext, gathererResults);
@@ -434,10 +437,10 @@ class GatherRunner {
           baseArtifacts.traces[passConfig.passName] = passData.trace;
         }
 
-        if (firstPass) {
+        if (isFirstPass) {
           // Copy redirected URL to artifact in the first pass only.
           baseArtifacts.URL.finalUrl = passContext.url;
-          firstPass = false;
+          isFirstPass = false;
         }
       }
       const resetStorage = !options.settings.disableStorageReset;
