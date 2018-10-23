@@ -54,10 +54,12 @@ class LoadFastEnough4Pwa extends Audit {
 
     // Override settings for interactive if provided throttling was used and network
     // throttling was not consistent with standard `mobile network throttling`
-    const override = context.settings.throttlingMethod === 'provided' &&
-    !isDeepEqual(context.settings.throttling, mobileThrottling);
+    const override = context.settings.throttlingMethod === 'provided' ||
+      !isDeepEqual(context.settings.throttling, mobileThrottling);
 
-    const settings = override ? Object.assign({}, context.settings, settingOverrides): 
+    const displayValueFinal = override?displayValueTextWithOverride: displayValueText;
+
+    const settings = override ? Object.assign({}, context.settings, settingOverrides):
       context.settings;
 
     const metricComputationData = {trace, devtoolsLog, settings};
@@ -70,7 +72,7 @@ class LoadFastEnough4Pwa extends Audit {
     /** @type {string|undefined} */
     let explanation;
     if (!score) {
-      displayValue = [override?displayValueTextWithOverride: displayValueText, tti.timing / 1000];
+      displayValue = [displayValueFinal, tti.timing / 1000];
       explanation = 'Your page loads too slowly and is not interactive within 10 seconds. ' +
         'Look at the opportunities and diagnostics in the "Performance" section to learn how to ' +
         'improve.';

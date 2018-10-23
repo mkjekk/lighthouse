@@ -79,6 +79,16 @@ describe('PWA: load-fast-enough-for-pwa audit', () => {
     expect(Math.round(result.rawValue)).toMatchSnapshot();
   });
 
+  it('overrides when throttling is modified but method is not provided', async () => {
+    const artifacts = {
+      traces: {defaultPass: trace},
+      devtoolsLogs: {defaultPass: devtoolsLog},
+    };
+
+    const settings = {throttlingMethod: 'devtools', throttling: {rttMs: 40, throughput: 100000}};
+    const result = await FastPWAAudit.audit(artifacts, {settings, computedCache: new Map()});
+    expect(result.rawValue).toBeGreaterThan(2000);
+  });
 
   it('override with simulated result fails a bad simulated TTI value', async () => {
     const topLevelTasks = [
