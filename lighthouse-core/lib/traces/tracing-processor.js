@@ -200,7 +200,7 @@ class TraceProcessor {
    * @param {LH.TraceEvent[]} events
    * @return {{pid: number, tid: number, frameId: string, ts: number}}
    */
-  static findTracingIds(events) {
+  static findMainFrameIds(events) {
     /** @type {number|undefined} */
     let pid;
     /** @type {number|undefined} */

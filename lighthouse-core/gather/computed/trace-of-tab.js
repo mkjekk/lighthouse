@@ -82,10 +82,10 @@ class TraceOfTab {
     });
 
     // Find the inspected frame
-    const tracingIds = TracingProcessor.findTracingIds(keyEvents);
+    const mainFrameIds = TracingProcessor.findMainFrameIds(keyEvents);
 
     // Filter to just events matching the frame ID for sanity
-    const frameEvents = keyEvents.filter(e => e.args.frame === tracingIds.frameId);
+    const frameEvents = keyEvents.filter(e => e.args.frame === mainFrameIds.frameId);
 
     // Our navStart will be the last frame navigation in the trace
     const navigationStart = frameEvents.filter(TraceOfTab.isNavigationStartOfInterest).pop();
@@ -132,10 +132,10 @@ class TraceOfTab {
     // subset all trace events to just our tab's process (incl threads other than main)
     // stable-sort events to keep them correctly nested.
     const processEvents = TraceOfTab
-      .filteredStableSort(trace.traceEvents, e => e.pid === tracingIds.pid);
+      .filteredStableSort(trace.traceEvents, e => e.pid === mainFrameIds.pid);
 
     const mainThreadEvents = processEvents
-      .filter(e => e.tid === tracingIds.tid);
+      .filter(e => e.tid === mainFrameIds.tid);
 
     // traceEnd must exist since at least navigationStart event was verified as existing.
     const traceEnd = trace.traceEvents.reduce((max, evt) => {
@@ -177,7 +177,7 @@ class TraceOfTab {
       timestamps,
       processEvents,
       mainThreadEvents,
-      tracingIds,
+      mainFrameIds,
       navigationStartEvt: navigationStart,
       firstPaintEvt: firstPaint,
       firstContentfulPaintEvt: firstContentfulPaint,
