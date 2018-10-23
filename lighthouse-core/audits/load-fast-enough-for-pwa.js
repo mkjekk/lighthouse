@@ -57,8 +57,8 @@ class LoadFastEnough4Pwa extends Audit {
     const override = context.settings.throttlingMethod === 'provided' &&
     !isDeepEqual(context.settings.throttling, mobileThrottling);
 
-    const settings = !override? context.settings:
-      Object.assign({}, context.settings, settingOverrides);
+    const settings = override ? Object.assign({}, context.settings, settingOverrides): 
+      context.settings;
 
     const metricComputationData = {trace, devtoolsLog, settings};
     const tti = await Interactive.request(metricComputationData, context);
